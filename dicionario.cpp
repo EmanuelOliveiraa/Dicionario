@@ -426,6 +426,46 @@ void pesquisar_Palavra(){
     system("pause");
 }
 
+//aqui faz parte do ordenar dicionario, mas por enqaunto so estou ordenando a lista dupla (bubble sort em ordem crescente)
+void ordenarLetras(){
+
+    bool trocou; // variavel que controla se houve troca durante a passagem
+
+    do{
+
+        trocou = false; // começo com nenhuma troca feita
+
+        ListaDupla *atual = listaInicio_dupla.pProx; // começo no primeiro nó válido
+
+        while(atual != NULL && atual->pProx != NULL){ //enquanto existir nó atual e próximo nó para comparar
+
+            // comparo a letra atual com a próxima letra
+            if(atual->letra > atual->pProx->letra){
+
+                // variáveis temporárias para realizar a troca
+                char letraTemp = atual->letra;
+                int qtdTemp = atual->quantidade;
+                ListaSimples *listaTemp = atual->listaSimples;
+
+                // copio os dados do próximo nó para o atual
+                atual->letra = atual->pProx->letra;
+                atual->quantidade = atual->pProx->quantidade;
+                atual->listaSimples = atual->pProx->listaSimples;
+
+                // copio os dados temporários para o próximo nó
+                atual->pProx->letra = letraTemp;
+                atual->pProx->quantidade = qtdTemp;
+                atual->pProx->listaSimples = listaTemp;
+
+                trocou = true; // informo que houve troca nesta passagem
+            }
+
+            atual = atual->pProx; // avanço para o próximo nó
+        }
+
+    }while(trocou); // continuo enquanto ainda existirem trocas
+}
+
 int main(){
 
 int opcao;
