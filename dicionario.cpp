@@ -28,6 +28,9 @@ void inserir_Palavra(ListaSimples *lista, char palavra[50], char descricao[200])
 void carregarArquivo();
 void salvarArquivo();
 
+void gotoxy(int y, int x){
+    printf("\033[%d;%dH", x, y);
+}
 void limparTela(){
     printf("\033[2J");
     printf("\033[H");
@@ -388,15 +391,25 @@ carregarArquivo();
 
 do {
 	limparTela();
+	gotoxy(15,5);
 	cout << "MENU DICIONARIO DE PROFISSOES" << endl;
-    cout << "\n1 - Inserir profissao" << endl;
-    cout << "\n2 - Listar profissoes" << endl;
-    cout << "\n3 - Pesquisar profissao por palavra" << endl;
-    cout << "\n4 - Remover profissao" << endl;
-    cout << "\n5 - Editar profissao" << endl;
-    cout << "\n6 - Salvar arquivo" << endl;
-    cout << "\n0 - Sair";
-    cout << "\nOpcao: ";
+    gotoxy(10,7);
+    cout << "1 - Inserir profissao" << endl;
+    gotoxy(10,8);
+    cout << "2 - Listar profissoes" << endl;
+    gotoxy(10,9);
+    cout << "3 - Pesquisar profissao por palavra" << endl;
+    gotoxy(10,10);
+    cout << "4 - Remover profissao" << endl;
+    gotoxy(10,11);
+    cout << "5 - Editar profissao" << endl;
+    gotoxy(10,12);
+    cout << "6 - Salvar arquivo" << endl;
+    gotoxy(10,13);
+    cout << "0 - Sair";
+    gotoxy(10,14);
+    cout << "Opcao: ";
+    gotoxy(17,14);
     cin >> opcao;
     //cin.ignore();
     switch(opcao){
