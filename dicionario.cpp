@@ -1,0 +1,419 @@
+#include <iostream>
+#include <cstring>
+#include <cctype>
+#include <cstdlib>
+#include <fstream>
+
+using namespace std;
+
+typedef struct ListaDupla{
+    char letra;
+    int quantidade;
+    struct ListaDupla *pProx,*pAnt;
+    struct ListaSimples *listaSimples;
+    }ListaDupla;
+
+
+typedef struct ListaSimples{
+    char palavra[50];
+    char descricao[200];
+    struct ListaSimples *pProx;
+    }ListaSimples;
+
+
+ListaDupla listaInicio_dupla, *pAuxD, *pSecD;
+ListaSimples listaInicio_simples, *pAuxS, *pSecS;
+ListaSimples* verificar(char letra);
+void inserir_Palavra(ListaSimples *lista, char palavra[50], char descricao[200]);
+void carregarArquivo();
+void salvarArquivo();
+
+void limparTela(){
+    printf("\033[2J");
+    printf("\033[H");
+} //modulo util
+
+void maiusculo(char palavra[50]){
+
+    for(int i = 0; palavra[i] != '\0'; i++){
+        palavra[i] = toupper(palavra[i]);
+    }
+} //modulo util (passar a palavra para maisculo, para gerar sensitive case)
+
+ListaSimples* existeProfissao(char palavra[50]){
+
+    char letra = toupper(palavra[0]);
+
+    ListaSimples *lista = verificar(letra);
+
+
+    ListaSimples *aux = lista;
+
+    while(aux != NULL){
+
+        if(strcmp(aux->palavra,palavra) == 0){
+            return aux;
+        }
+
+        aux = aux->pProx;
+    }
+
+    return NULL;
+} //modulo util (verifica se ja existe profissao na lista, evita duplicidade)
+
+void carregarArquivo(){
+
+    ifstream arquivo("profissoes.txt"); //abro meu arquivo para leitura
+
+    if(!arquivo){
+        return;
+    }
+
+    char linha[300]; // armazeno cada linha do arquivo
+
+    while(arquivo.getline(linha, 300)){ // leio arquivo linha por linha até o fim
+
+        char *palavraArquivo = strtok(linha, ";"); // lê a profissão até o ;
+        char *descricaoArquivo = strtok(NULL, ";"); // lê a descrição depois do ; até o outro ;
+
+        if(palavraArquivo != NULL && descricaoArquivo != NULL){
+
+            char palavra[50];
+            char descricao[200]; //vetores que receberao as informacoes
+
+            strcpy(palavra, palavraArquivo);
+            strcpy(descricao, descricaoArquivo); // copio do arquivo para a memória
+
+            maiusculo(palavra);
+
+            char letra = toupper(palavra[0]);
+
+            ListaSimples *lista = verificar(letra); //verifico se ja existe um nó para essa letra
+
+            if(lista == NULL){
+
+                // cria nova letra na lista dupla
+
+                pAuxD = &listaInicio_dupla; //começo do inicio
+
+                while(pAuxD->pProx != NULL){
+                    pAuxD = pAuxD->pProx; //percorro até o ultimo nó da lista dupla
+                }
+
+                pSecD = new ListaDupla; //declaro meu novo nó na lista dupla
+
+                pSecD->letra = letra; //adiciono a letra do meu nó
+                pSecD->quantidade = 1; //agora o meu nó passará a ter uma palavra
+
+                pSecD->pProx = NULL;
+                pSecD->pAnt = pAuxD;
+
+                pSecD->listaSimples = new ListaSimples; //declaro minha lista simples desse nó
+                pSecD->listaSimples->pProx = NULL; // inicio vazia
+
+                pAuxD->pProx = pSecD; // ligo o novo nó na lista dupla
+
+                inserir_Palavra(pSecD->listaSimples, palavra, descricao); //insiro a palavra bem como a descricao a partir da funcao
+            }
+            else{
+
+                // letra já existe
+
+                inserir_Palavra(lista, palavra, descricao);
+
+                ListaDupla *auxD = listaInicio_dupla.pProx;
+
+                while(auxD != NULL){
+
+                    if(auxD->letra == letra){
+                        auxD->quantidade++;
+                        break;
+                    }
+
+                    auxD = auxD->pProx;
+                }
+            }
+        }
+    }
+
+    arquivo.close();
+}
+
+void salvarArquivo(){
+
+    ofstream arquivo("profissoes.txt");
+
+    if(!arquivo){
+        cout << "Erro ao abrir o arquivo para salvar!\n";
+        system("pause");
+        return;
+    }
+
+    ListaDupla *auxD = listaInicio_dupla.pProx;
+
+    while(auxD != NULL){
+
+        ListaSimples *auxS = auxD->listaSimples->pProx;
+
+        while(auxS != NULL){
+            arquivo << auxS->palavra << ";" << auxS->descricao << endl;
+            auxS = auxS->pProx;
+        }
+
+        auxD = auxD->pProx;
+    }
+
+    arquivo.close();
+
+    cout << "Arquivo salvo com sucesso!\n";
+    system("pause");
+}
+
+void inserir_Palavra(ListaSimples *lista, char palavra[50], char descricao[200]){
+    ListaSimples *aux = lista;
+    while(aux->pProx != NULL){
+        aux = aux->pProx;
+    }
+    ListaSimples *novo = new ListaSimples;
+    strcpy(novo->palavra, palavra);
+    strcpy(novo->descricao, descricao);
+    novo->pProx = NULL;
+    aux->pProx = novo;
+}
+
+ListaSimples* verificar(char letra){
+    ListaDupla *aux = listaInicio_dupla.pProx;
+
+    while(aux != NULL){
+        if(letra == aux->letra){
+            return aux->listaSimples;
+        }
+        aux = aux->pProx;
+    }
+    return NULL;
+}
+
+void inserir_Letra(){
+    char palavra[50];
+    char descricao[200];
+
+    limparTela();
+
+    cout << "Digite a profissao: ";
+    cin.ignore();
+    cin.getline(palavra,50);
+
+    cout << "Digite a descricao: ";
+    cin.getline(descricao, 200);
+
+    maiusculo(palavra);
+
+    pAuxD = &listaInicio_dupla;
+    char letra = toupper(palavra[0]);
+
+	//se existir a profissao, avisar
+	if(existeProfissao(palavra)){
+        limparTela();
+        cout << "Essa profissao ja esta cadastrada!\n";
+        system("pause");
+        return;
+    }
+
+    if(pAuxD->pProx == NULL){ //se a lista estiver vazia, cria o primeiro no
+        pSecD = new ListaDupla;
+        pSecD->letra = letra;
+        pSecD->quantidade = 0;
+
+        pSecD->pProx = NULL;
+        pSecD->listaSimples = new ListaSimples;
+        pSecD->listaSimples->pProx = NULL;
+        pSecD->pAnt = pAuxD;
+
+        pAuxD->pProx = pSecD;
+        inserir_Palavra(pSecD->listaSimples,palavra,descricao);
+        pSecD->quantidade++;
+
+    }else{
+        if(verificar(letra) == NULL){ //se a letra nao existir, ele add no final
+
+            while(pAuxD->pProx != NULL){
+                pAuxD = pAuxD->pProx;
+            }
+            pSecD = new ListaDupla;
+            pSecD->letra = letra;
+            pSecD->quantidade = 0;
+
+            pSecD->pProx = NULL;
+            pSecD->listaSimples = new ListaSimples;
+            pSecD->listaSimples->pProx = NULL;
+            pSecD->pAnt = pAuxD;
+            pAuxD->pProx = pSecD;
+
+            inserir_Palavra(pSecD->listaSimples,palavra, descricao);
+            pSecD->quantidade++;
+        }else{                              //se a letra exitir, add no nÃ³ existente
+            inserir_Palavra(verificar(letra), palavra, descricao);
+
+			ListaDupla *auxD = listaInicio_dupla.pProx;
+
+			while(auxD != NULL){
+    			if(auxD->letra == letra){
+        			auxD->quantidade++;
+        			break;
+    			}
+
+    		auxD = auxD->pProx;
+			}
+        }
+    }
+    limparTela();
+    cout << "Profissao inserida!\n";
+    system("pause");
+}
+
+void listar(){
+    limparTela();
+
+    pAuxD = listaInicio_dupla.pProx;
+
+    while(pAuxD != NULL){
+
+        cout <<  pAuxD->letra  << " (" << pAuxD->quantidade << ")" << endl;
+
+        if(pAuxD->listaSimples == NULL){
+            cout << "sem lista" << endl;
+        }
+        else{
+
+            pAuxS = pAuxD->listaSimples->pProx;
+
+            while(pAuxS != NULL){
+                cout <<  pAuxS->palavra << " - " << pAuxS->descricao << endl;
+                pAuxS = pAuxS->pProx;
+            }
+        }
+
+        cout << endl;
+        pAuxD = pAuxD->pProx;
+    }
+    cin.get();
+    cin.ignore();
+}
+void editar(){
+    cin.get();
+    char palavra[50];
+    cout << "Digite a profissao: ";
+    cin.getline(palavra, 50);
+    maiusculo(palavra);
+    pAuxS = existeProfissao(palavra);
+    if(pAuxS == NULL){
+        cout << "Essa palavra nao exite no dicionario " << endl;
+
+        cin.get();
+        return;
+    }
+    cout << "Digite a profissao: ";
+    cin.getline(palavra, 50);
+    maiusculo(palavra);
+    cout << palavra << endl;
+
+    if(palavra[0] != pAuxS->palavra[0]){
+        cout << "essa palavra nao faz parte dessa letra";
+        cin.get();
+
+    }else{
+        strcpy(pAuxS->palavra, palavra);
+        cout << "Edicao concluida ";
+    }
+
+}
+//void excluir();
+
+void pesquisar_Palavra(){
+    char palavra[50];
+
+    limparTela();
+
+    cout << "Digite a profissao que deseja pesquisar: ";
+    cin.ignore();
+    cin.getline(palavra, 50);
+	limparTela();
+
+    maiusculo(palavra);
+    char letra = toupper(palavra[0]);
+
+    //procura a lista simples correspondente a essa letra
+    ListaSimples *lista = verificar(letra);
+
+    //se nao existir lista para essa letra, a palavra nao existe
+    if(lista == NULL){
+        cout << "Profissao nao encontrada!\n";
+        system("pause");
+        return;
+    }
+
+    //primeiro no valido da lista simples
+    ListaSimples *aux = lista->pProx;
+
+    //percorre a lista simples procurando a palavra
+    while(aux != NULL){
+
+
+        if(strcmp(aux->palavra, palavra) == 0){
+            cout << "\nProfissao encontrada!\n";
+            cout << "Nome: " << aux->palavra << endl;
+            cout << "Descricao: " << aux->descricao << endl;
+
+            system("pause");
+            return;
+        }
+
+        aux = aux->pProx;
+    }
+
+    //se percorreu tudo e nao encontrou
+    cout << "Profissao nao encontrada!\n";
+    system("pause");
+}
+
+int main(){
+
+int opcao;
+listaInicio_dupla.pProx = NULL;
+listaInicio_dupla.pAnt = NULL;
+listaInicio_dupla.listaSimples = NULL;
+listaInicio_dupla.quantidade = 0;
+
+carregarArquivo();
+
+do {
+	limparTela();
+	cout << "MENU DICIONARIO DE PROFISSOES" << endl;
+    cout << "\n1 - Inserir profissao" << endl;
+    cout << "\n2 - Listar profissoes" << endl;
+    cout << "\n3 - Pesquisar profissao por palavra" << endl;
+    cout << "\n4 - Remover profissao" << endl;
+    cout << "\n5 - Editar profissao" << endl;
+    cout << "\n6 - Salvar arquivo" << endl;
+    cout << "\n0 - Sair";
+    cout << "\nOpcao: ";
+    cin >> opcao;
+    //cin.ignore();
+    switch(opcao){
+        case 1: inserir_Letra();     break;
+        case 2: listar();            break;
+        case 3: pesquisar_Palavra(); break;
+        case 4: /*remove*/           break;
+        case 5: editar();            break;
+        case 6: salvarArquivo();     break;
+        case 0:                      break;
+        default:
+            break;
+    }
+
+
+} while(opcao != 0);
+
+return 0;
+}
+
