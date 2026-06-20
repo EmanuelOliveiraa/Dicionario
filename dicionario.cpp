@@ -339,7 +339,45 @@ void editar(){
     }
 
 }
-//void excluir();
+void remover(){
+    cin.get();
+    char palavra[50];
+    cout << "Digite a profissao para excluir: ";
+    cin.getline(palavra, 50);
+    maiusculo(palavra);
+    pAuxS = verificar(palavra[0]);
+    ListaSimples *aux = NULL;
+    while(pAuxS != NULL){
+        if(strcmp(palavra,pAuxS->palavra) == 0){
+            break;
+        }
+        aux = pAuxS;
+        pAuxS = pAuxS->pProx;
+    }
+
+    if(pAuxS == NULL){
+        cout << "Essa palavra nao exite no dicionario, ou esta incorreta... " << endl;
+        cin.get();
+        return;
+    }else{
+        if(aux == NULL){
+            verificar(palavra[0])->pProx = pAuxS->pProx;
+            delete(pAuxS);
+        }else{
+            aux->pProx = pAuxS->pProx;
+            delete(pAuxS);
+        }
+
+        pAuxD = listaInicio_dupla.pProx;
+        while(pAuxD != NULL){
+            if(pAuxD->letra == palavra[0]){
+                pAuxD->quantidade--;
+                break;
+            }
+            pAuxD = pAuxD->pProx;
+        }
+    }
+}
 
 void pesquisar_Palavra(){
     char palavra[50];
@@ -420,12 +458,11 @@ do {
     cout << "Opcao: ";
     gotoxy(17,14);
     cin >> opcao;
-    //cin.ignore();
     switch(opcao){
         case 1: inserir_Letra();     break;
         case 2: listar();            break;
         case 3: pesquisar_Palavra(); break;
-        case 4: /*remove*/           break;
+        case 4: remover();           break;
         case 5: editar();            break;
         case 6: salvarArquivo();     break;
         case 0:                      break;
