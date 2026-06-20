@@ -276,28 +276,37 @@ void inserir_Letra(){
 
 void listar(){
     limparTela();
-
     pAuxD = listaInicio_dupla.pProx;
+    int i = 0;
+
+    gotoxy(15,5);
+	cout << "LISTA DE PROFISSOES" << endl;
+
+    if(pAuxD == NULL){
+            gotoxy(15,7);
+            cout << "LISTA VAZIA..." << endl;
+    }
 
     while(pAuxD != NULL){
-
+        gotoxy(10,7 + i);
         cout <<  pAuxD->letra  << " (" << pAuxD->quantidade << ")" << endl;
 
         if(pAuxD->listaSimples == NULL){
-            cout << "sem lista" << endl;
+            gotoxy(15,7);
+            cout << "LISTA VAZIA" << endl;
+            cin.get();
         }
         else{
-
             pAuxS = pAuxD->listaSimples->pProx;
-
             while(pAuxS != NULL){
+                gotoxy(10,8 + i);
                 cout <<  pAuxS->palavra << " - " << pAuxS->descricao << endl;
                 pAuxS = pAuxS->pProx;
+                i++;
             }
         }
-
-        cout << endl;
         pAuxD = pAuxD->pProx;
+        i = i + 2;
     }
     cin.get();
     cin.ignore();
