@@ -340,43 +340,80 @@ void editar(){
 
 }
 void remover(){
+
     cin.get();
+
     char palavra[50];
+
     cout << "Digite a profissao para excluir: ";
     cin.getline(palavra, 50);
+
     maiusculo(palavra);
-    pAuxS = verificar(palavra[0]);
+
+    ListaSimples *lista = verificar(palavra[0]);
+
+    if(lista == NULL){
+        cout << "Essa palavra nao existe no dicionario, ou esta incorreta..." << endl;
+        cin.get();
+        return;
+    }
+
+    pAuxS = lista->pProx;
     ListaSimples *aux = NULL;
+
     while(pAuxS != NULL){
-        if(strcmp(palavra,pAuxS->palavra) == 0){
+
+        if(strcmp(palavra, pAuxS->palavra) == 0){
             break;
         }
+
         aux = pAuxS;
         pAuxS = pAuxS->pProx;
     }
 
     if(pAuxS == NULL){
-        cout << "Essa palavra nao exite no dicionario, ou esta incorreta... " << endl;
+        cout << "Essa palavra nao existe no dicionario, ou esta incorreta..." << endl;
         cin.get();
         return;
-    }else{
-        if(aux == NULL){
-            verificar(palavra[0])->pProx = pAuxS->pProx;
-            delete(pAuxS);
-        }else{
-            aux->pProx = pAuxS->pProx;
-            delete(pAuxS);
+    }
+
+    if(aux == NULL){
+        lista->pProx = pAuxS->pProx;
+    }
+    else{
+        aux->pProx = pAuxS->pProx;
+    }
+
+    delete pAuxS;
+
+    pAuxD = listaInicio_dupla.pProx;
+
+    while(pAuxD != NULL){
+
+        if(pAuxD->letra == palavra[0]){
+
+            pAuxD->quantidade--;
+
+            if(pAuxD->quantidade == 0){
+
+                pAuxD->pAnt->pProx = pAuxD->pProx;
+
+                if(pAuxD->pProx != NULL){
+                    pAuxD->pProx->pAnt = pAuxD->pAnt;
+                }
+
+                delete pAuxD->listaSimples;
+                delete pAuxD;
+            }
+
+            break;
         }
 
-        pAuxD = listaInicio_dupla.pProx;
-        while(pAuxD != NULL){
-            if(pAuxD->letra == palavra[0]){
-                pAuxD->quantidade--;
-                break;
-            }
-            pAuxD = pAuxD->pProx;
-        }
+        pAuxD = pAuxD->pProx;
     }
+
+    cout << "Profissao removida com sucesso!" << endl;
+    cin.get();
 }
 
 void pesquisar_Palavra(){
