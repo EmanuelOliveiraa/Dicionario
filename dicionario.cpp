@@ -463,7 +463,7 @@ void pesquisar_Palavra(){
     system("pause");
 }
 
-//aqui faz parte do ordenar dicionario, mas por enqaunto so estou ordenando a lista dupla (bubble sort em ordem crescente)
+//funçoes que possibilitarao a ordenacao de dicionario
 void ordenarLetras(){
 
     bool trocou; // variavel que controla se houve troca durante a passagem
@@ -503,6 +503,48 @@ void ordenarLetras(){
     }while(trocou); // continuo enquanto ainda existirem trocas
 }
 
+void ordenarProfissoes(){
+
+    ListaDupla *letraAtual = listaInicio_dupla.pProx; //começo no primeiro no da lista dupla 
+
+    while(letraAtual != NULL){ //enquanto houver nodos da lista dupla 
+
+        bool trocou; //variavel que contra a troca 
+
+        do{
+
+            trocou = false; //começo com nenhuma troca 
+
+            ListaSimples *atual = letraAtual->listaSimples->pProx; //começo no primeiro nó da lista simples contida na lista dupla 
+
+            while(atual != NULL && atual->pProx != NULL){ //enquanto houverem palavras para comparar 
+
+                if(strcmp(atual->palavra, atual->pProx->palavra) > 0){ //se for maior que 0, a string atual é maior que a proxima 
+
+                    char palavraTemp[50];
+                    char descricaoTemp[200];
+
+                    strcpy(palavraTemp, atual->palavra);
+                    strcpy(descricaoTemp, atual->descricao);
+
+                    strcpy(atual->palavra, atual->pProx->palavra);
+                    strcpy(atual->descricao, atual->pProx->descricao);
+
+                    strcpy(atual->pProx->palavra, palavraTemp);
+                    strcpy(atual->pProx->descricao, descricaoTemp); //passo a atual para tem, a proxima para atual e a temp para a proxima 
+
+                    trocou = true; //indico que houve troca 
+                }
+
+                atual = atual->pProx; //passo para a proxima palavra 
+            }
+
+        }while(trocou); //enquanto houverem trocas 
+
+        letraAtual = letraAtual->pProx; //passo para o proximo nó da lista dupla 
+    }
+}
+
 int main(){
 
 int opcao;
@@ -530,10 +572,12 @@ do {
     gotoxy(10,12);
     cout << "6 - Salvar arquivo" << endl;
     gotoxy(10,13);
-    cout << "0 - Sair";
+    cout << "7 - Ordenar dicionario";
     gotoxy(10,14);
+	cout << "0 - Sair";
+    gotoxy(10,15);
     cout << "Opcao: ";
-    gotoxy(17,14);
+    gotoxy(17,15);
     cin >> opcao;
     switch(opcao){
         case 1: inserir_Letra();     break;
@@ -542,14 +586,13 @@ do {
         case 4: remover();           break;
         case 5: editar();            break;
         case 6: salvarArquivo();     break;
-        case 0:                      break;
-        default:
-            break;
+		case 7: ordenarLetras(); ordenarProfissoes(); cout << "Dicionario ordenado!"; system("pause"); break;
+        case 0: salvarArquivo(); return 0;           
+        default: cout << "Informe uma opcao valida!"; system("pause"); break;
     }
 
 
 } while(opcao != 0);
 
-return 0;
 }
 
