@@ -30,6 +30,8 @@ ListaDupla listaInicio_dupla, *pAuxD, *pSecD;
 ListaSimples listaInicio_simples, *pAuxS, *pSecS;
 ListaSimples* verificar(char letra);
 
+void remover(char palavra[50]);
+void editar(char palavraAntiga[50], char palavra[50], char descricao[200]);
 void inserir_Palavra(ListaSimples *lista, char palavra[50], char descricao[200]);
 void carregarArquivo();
 void salvarArquivo();
@@ -50,17 +52,21 @@ void maiusculo(char palavra[50]){
 } //modulo util (passar a palavra para maisculo, para gerar sensitive case)
 
 ListaSimples* existeProfissao(char palavra[50]){
+    char copia[50];
+    strcpy(copia, palavra);
+    maiusculo(copia);
 
-    char letra = toupper(palavra[0]);
+    ListaSimples *lista = verificar(copia[0]);
 
-    ListaSimples *lista = verificar(letra);
+     if(lista == NULL){
+        return NULL;
+    }
 
-
-    ListaSimples *aux = lista;
+    ListaSimples *aux = lista->pProx;
 
     while(aux != NULL){
 
-        if(strcmp(aux->palavra,palavra) == 0){
+        if(strcmp(aux->palavra,copia) == 0){
             return aux;
         }
 
@@ -202,82 +208,86 @@ ListaSimples* verificar(char letra){
     return NULL;
 }
 
-void inserir_Letra(){
-    char palavra[50];
-    char descricao[200];
 
-    limparTela();
-
-    cout << "Digite a profissao: ";
-    cin.ignore();
-    cin.getline(palavra,50);
-
-    cout << "Digite a descricao: ";
-    cin.getline(descricao, 200);
-
+void inserir_Letra(char palavra[50], char descricao[200]){
     maiusculo(palavra);
 
     pAuxD = &listaInicio_dupla;
     char letra = toupper(palavra[0]);
 
-	//se existir a profissao, avisar
-	if(existeProfissao(palavra)){
-        limparTela();
-        cout << "Essa profissao ja esta cadastrada!\n";
-        system("pause");
+    if(existeProfissao(palavra)){
         return;
     }
 
-    if(pAuxD->pProx == NULL){ //se a lista estiver vazia, cria o primeiro no
+    if(pAuxD->pProx == NULL){ // lista dupla vazia
         pSecD = new ListaDupla;
         pSecD->letra = letra;
         pSecD->quantidade = 0;
-
         pSecD->pProx = NULL;
         pSecD->listaSimples = new ListaSimples;
         pSecD->listaSimples->pProx = NULL;
         pSecD->pAnt = pAuxD;
 
         pAuxD->pProx = pSecD;
-        inserir_Palavra(pSecD->listaSimples,palavra,descricao);
+        inserir_Palavra(pSecD->listaSimples, palavra, descricao);
         pSecD->quantidade++;
-
-    }else{
-        if(verificar(letra) == NULL){ //se a letra nao existir, ele add no final
-
+    }
+    else{
+        if(verificar(letra) == NULL){ // letra não existe
             while(pAuxD->pProx != NULL){
                 pAuxD = pAuxD->pProx;
             }
+
             pSecD = new ListaDupla;
             pSecD->letra = letra;
             pSecD->quantidade = 0;
-
             pSecD->pProx = NULL;
             pSecD->listaSimples = new ListaSimples;
             pSecD->listaSimples->pProx = NULL;
             pSecD->pAnt = pAuxD;
             pAuxD->pProx = pSecD;
 
-            inserir_Palavra(pSecD->listaSimples,palavra, descricao);
+            inserir_Palavra(pSecD->listaSimples, palavra, descricao);
             pSecD->quantidade++;
-        }else{                              //se a letra exitir, add no nÃ³ existente
+        }
+        else{ // letra já existe
             inserir_Palavra(verificar(letra), palavra, descricao);
 
-			ListaDupla *auxD = listaInicio_dupla.pProx;
-
-			while(auxD != NULL){
-    			if(auxD->letra == letra){
-        			auxD->quantidade++;
-        			break;
-    			}
-
-    		auxD = auxD->pProx;
-			}
+            ListaDupla *auxD = listaInicio_dupla.pProx;
+            while(auxD != NULL){
+                if(auxD->letra == letra){
+                    auxD->quantidade++;
+                    break;
+                }
+                auxD = auxD->pProx;
+            }
         }
     }
+}
+
+void telaInserir(){
+    char palavra[50];
+    char descricao[200];
+
     limparTela();
-    cout << "Profissao inserida!\n";
-    system("pause");
+    cin.ignore();
+
+    cout << "Digite a profissao: ";
+    cin.getline(palavra, 50);
+
+    cout << "Digite a descricao: ";
+    cin.getline(descricao, 200);
+
+    if(existeProfissao(palavra)){
+        cout << "Essa profissao ja esta cadastrada!" << endl;
+        cin.get();
+        return;
+    }
+
+    inserir_Letra(palavra, descricao);
+
+    cout << "Profissao inserida!" << endl;
+    cin.get();
 }
 
 void listar(){
@@ -317,77 +327,108 @@ void listar(){
     cin.get();
     cin.ignore();
 }
-void editar(){
-    cin.get();
-    char palavra[50];
-    cout << "Digite a profissao: ";
-    cin.getline(palavra, 50);
-    maiusculo(palavra);
-    pAuxS = existeProfissao(palavra);
-    if(pAuxS == NULL){
-        cout << "Essa palavra nao exite no dicionario " << endl;
 
+void telaEditar(){
+    char palavraAntiga[50];
+    char palavraNova[50];
+    char descricaoNova[200];
+
+    limparTela();
+    cin.ignore();
+
+    cout << "Digite a profissao que deseja editar: ";
+    cin.getline(palavraAntiga, 50);
+
+    if(existeProfissao(palavraAntiga) == NULL){
+        cout << "Profissao nao encontrada!" << endl;
         cin.get();
         return;
     }
-    cout << "Digite a profissao: ";
-    cin.getline(palavra, 50);
+
+    cout << "Nova profissao: ";
+    cin.getline(palavraNova, 50);
+
+    cout << "Nova descricao: ";
+    cin.getline(descricaoNova, 200);
+
+    editar(palavraAntiga, palavraNova, descricaoNova);
+
+    cout << "Profissao editada com sucesso!" << endl;
+    cin.get();
+}
+
+void editar(char palavraAntiga[50], char palavra[50], char descricao[200]){
+    maiusculo(palavraAntiga);
     maiusculo(palavra);
-    cout << palavra << endl;
 
-    if(palavra[0] != pAuxS->palavra[0]){
-        cout << "essa palavra nao faz parte dessa letra";
-        cin.get();
+    ListaSimples *prof = existeProfissao(palavraAntiga);
 
-    }else{
-        strcpy(pAuxS->palavra, palavra);
-        cout << "Edicao concluida ";
+    if(prof == NULL){
+        return;
     }
 
+    char letraAntiga = toupper(palavraAntiga[0]);
+    char letraNova = toupper(palavra[0]);
+
+    // mesma letra -> só altera
+    if(letraAntiga == letraNova){
+        strcpy(prof->palavra, palavra);
+        strcpy(prof->descricao, descricao);
+    }
+    else{
+        remover(palavraAntiga);
+        inserir_Letra(palavra, descricao);
+    }
 }
-void remover(){
-
-    cin.get();
-
+void telaRemover(){
     char palavra[50];
+
+    limparTela();
+    cin.ignore();
 
     cout << "Digite a profissao para excluir: ";
     cin.getline(palavra, 50);
 
+    if(existeProfissao(palavra) == NULL){
+        cout << "Essa palavra nao existe no dicionario..." << endl;
+        cin.get();
+        return;
+    }
+
+    remover(palavra);
+
+    cout << "Profissao removida com sucesso!" << endl;
+    cin.get();
+}
+
+void remover(char palavra[50]){
     maiusculo(palavra);
 
     ListaSimples *lista = verificar(palavra[0]);
 
     if(lista == NULL){
-        cout << "Essa palavra nao existe no dicionario, ou esta incorreta..." << endl;
-        cin.get();
         return;
     }
 
     pAuxS = lista->pProx;
-    ListaSimples *aux = NULL;
+    ListaSimples *ant = NULL;
 
     while(pAuxS != NULL){
-
         if(strcmp(palavra, pAuxS->palavra) == 0){
             break;
         }
-
-        aux = pAuxS;
+        ant = pAuxS;
         pAuxS = pAuxS->pProx;
     }
 
     if(pAuxS == NULL){
-        cout << "Essa palavra nao existe no dicionario, ou esta incorreta..." << endl;
-        cin.get();
         return;
     }
 
-    if(aux == NULL){
+    if(ant == NULL){
         lista->pProx = pAuxS->pProx;
-    }
-    else{
-        aux->pProx = pAuxS->pProx;
+    }else{
+        ant->pProx = pAuxS->pProx;
     }
 
     delete pAuxS;
@@ -395,13 +436,10 @@ void remover(){
     pAuxD = listaInicio_dupla.pProx;
 
     while(pAuxD != NULL){
-
         if(pAuxD->letra == palavra[0]){
-
             pAuxD->quantidade--;
 
             if(pAuxD->quantidade == 0){
-
                 pAuxD->pAnt->pProx = pAuxD->pProx;
 
                 if(pAuxD->pProx != NULL){
@@ -417,9 +455,6 @@ void remover(){
 
         pAuxD = pAuxD->pProx;
     }
-
-    cout << "Profissao removida com sucesso!" << endl;
-    cin.get();
 }
 
 void pesquisar_Palavra(){
@@ -717,12 +752,12 @@ do {
     gotoxy(17,16);
     cin >> opcao;
     switch(opcao){
-        case 1: inserir_Letra();     break;
+        case 1: telaInserir();     break;
         case 2: listar();            break;
         case 3: pesquisarRelevancia(); break;
         case 4: pesquisar_Palavra(); break;
-        case 5: remover();           break;
-        case 6: editar();            break;
+        case 5: telaRemover();           break;
+        case 6: telaEditar();            break;
         case 7: salvarArquivo();     break;
 		case 8: ordenarLetras(); ordenarProfissoes(); cout << "Dicionario ordenado!"; system("pause"); break;
         case 0: salvarArquivo(); return 0;
