@@ -5,7 +5,12 @@
 #include <fstream>
 
 using namespace std;
-
+struct ListaRelevancia{
+    char profissao[50];
+    char descricao[200];
+    int ocorrencias;
+    ListaRelevancia *pProx;
+};
 typedef struct ListaDupla{
     char letra;
     int quantidade;
@@ -24,6 +29,7 @@ typedef struct ListaSimples{
 ListaDupla listaInicio_dupla, *pAuxD, *pSecD;
 ListaSimples listaInicio_simples, *pAuxS, *pSecS;
 ListaSimples* verificar(char letra);
+
 void inserir_Palavra(ListaSimples *lista, char palavra[50], char descricao[200]);
 void carregarArquivo();
 void salvarArquivo();
@@ -505,21 +511,21 @@ void ordenarLetras(){
 
 void ordenarProfissoes(){
 
-    ListaDupla *letraAtual = listaInicio_dupla.pProx; //começo no primeiro no da lista dupla 
+    ListaDupla *letraAtual = listaInicio_dupla.pProx; //começo no primeiro no da lista dupla
 
-    while(letraAtual != NULL){ //enquanto houver nodos da lista dupla 
+    while(letraAtual != NULL){ //enquanto houver nodos da lista dupla
 
-        bool trocou; //variavel que contra a troca 
+        bool trocou; //variavel que contra a troca
 
         do{
 
-            trocou = false; //começo com nenhuma troca 
+            trocou = false; //começo com nenhuma troca
 
-            ListaSimples *atual = letraAtual->listaSimples->pProx; //começo no primeiro nó da lista simples contida na lista dupla 
+            ListaSimples *atual = letraAtual->listaSimples->pProx; //começo no primeiro nó da lista simples contida na lista dupla
 
-            while(atual != NULL && atual->pProx != NULL){ //enquanto houverem palavras para comparar 
+            while(atual != NULL && atual->pProx != NULL){ //enquanto houverem palavras para comparar
 
-                if(strcmp(atual->palavra, atual->pProx->palavra) > 0){ //se for maior que 0, a string atual é maior que a proxima 
+                if(strcmp(atual->palavra, atual->pProx->palavra) > 0){ //se for maior que 0, a string atual é maior que a proxima
 
                     char palavraTemp[50];
                     char descricaoTemp[200];
@@ -531,18 +537,147 @@ void ordenarProfissoes(){
                     strcpy(atual->descricao, atual->pProx->descricao);
 
                     strcpy(atual->pProx->palavra, palavraTemp);
-                    strcpy(atual->pProx->descricao, descricaoTemp); //passo a atual para tem, a proxima para atual e a temp para a proxima 
+                    strcpy(atual->pProx->descricao, descricaoTemp); //passo a atual para tem, a proxima para atual e a temp para a proxima
 
-                    trocou = true; //indico que houve troca 
+                    trocou = true; //indico que houve troca
                 }
 
-                atual = atual->pProx; //passo para a proxima palavra 
+                atual = atual->pProx; //passo para a proxima palavra
             }
 
-        }while(trocou); //enquanto houverem trocas 
+        }while(trocou); //enquanto houverem trocas
 
-        letraAtual = letraAtual->pProx; //passo para o proximo nó da lista dupla 
+        letraAtual = letraAtual->pProx; //passo para o proximo nó da lista dupla
     }
+}
+//funcoes do item 8
+int contarOcorrencias(char descricao[], char palavra[]){
+    int cont = 0;
+    char copia[300];
+
+    strcpy(copia, descricao);
+    maiusculo(copia);
+
+    char *p = strstr(copia, palavra);
+
+    while(p != NULL){
+        cont++;
+        p = strstr(p + strlen(palavra), palavra);
+    }
+
+    return cont;
+}
+
+void inserirRelevancia(ListaRelevancia *&temp, char profissao[], char descricao[], int ocorrencias){
+    ListaRelevancia *novo = new ListaRelevancia;
+
+    strcpy(novo->profissao, profissao);
+    strcpy(novo->descricao, descricao);
+    novo->ocorrencias = ocorrencias;
+    novo->pProx = NULL;
+
+    if(temp == NULL){
+        temp = novo;
+    }else{
+        ListaRelevancia *p = temp;
+        while(p->pProx != NULL){
+            p = p->pProx;
+        }
+        p->pProx = novo;
+    }
+}
+
+void ordenarRelevanciaSelection(ListaRelevancia *temp){
+    ListaRelevancia *p, *menor, *q;
+    char auxProfissao[50];
+    char auxDescricao[300];
+    int auxOcorrencias;
+
+    p = temp;
+
+    while(p != NULL){
+        menor = p;
+        q = p->pProx;
+
+        while(q != NULL){
+            if(q->ocorrencias > menor->ocorrencias){
+                menor = q;
+            }
+            q = q->pProx;
+        }
+
+        if(menor != p){
+            strcpy(auxProfissao, p->profissao);
+            strcpy(auxDescricao, p->descricao);
+            auxOcorrencias = p->ocorrencias;
+
+            strcpy(p->profissao, menor->profissao);
+            strcpy(p->descricao, menor->descricao);
+            p->ocorrencias = menor->ocorrencias;
+
+            strcpy(menor->profissao, auxProfissao);
+            strcpy(menor->descricao, auxDescricao);
+            menor->ocorrencias = auxOcorrencias;
+        }
+
+        p = p->pProx;
+    }
+}
+
+
+void listarRelevancia(ListaRelevancia *temp){
+    if(temp == NULL){
+        cout << "Nenhuma descricao contem a palavra pesquisada." << endl;
+        return;
+    }
+
+    while(temp != NULL){
+        cout << "Profissao: " << temp->profissao << endl;
+        cout << "Descricao: " << temp->descricao << endl;
+        cout << "Ocorrencias: " << temp->ocorrencias << endl;
+        cout << "----------------------------------------" << endl;
+        temp = temp->pProx;
+    }
+    cin.get();
+}
+
+void pesquisarRelevancia(){
+    pAuxD = listaInicio_dupla.pProx;
+    char palavra[50];
+    int ocorrencias;
+    limparTela();
+
+    cout << "Digite a profissao que deseja pesquisar: ";
+    cin.ignore();
+    cin.getline(palavra, 50);
+    limparTela();
+    maiusculo(palavra);
+
+    ListaRelevancia *temp = NULL;
+
+    while(pAuxD != NULL){
+        pAuxS = pAuxD->listaSimples;
+
+        while(pAuxS != NULL){
+            ocorrencias = contarOcorrencias(pAuxS->descricao, palavra);
+
+            if(ocorrencias > 0){
+                inserirRelevancia(temp, pAuxS->palavra, pAuxS->descricao, ocorrencias);
+            }
+
+            pAuxS = pAuxS->pProx;
+        }
+
+        pAuxD = pAuxD->pProx;
+    }
+
+    ordenarRelevanciaSelection(temp);
+
+    cout << "RESULTADO DA PESQUISA POR RELEVANCIA" << endl;
+    cout << "Palavra pesquisada: " << palavra << endl;
+    cout << "========================================" << endl;
+
+    listarRelevancia(temp);
 }
 
 int main(){
@@ -564,30 +699,33 @@ do {
     gotoxy(10,8);
     cout << "2 - Listar profissoes" << endl;
     gotoxy(10,9);
-    cout << "3 - Pesquisar profissao por palavra" << endl;
+    cout << "3 - Pesquisar por Relevancia";
     gotoxy(10,10);
-    cout << "4 - Remover profissao" << endl;
+    cout << "4 - Pesquisar profissao por palavra" << endl;
     gotoxy(10,11);
-    cout << "5 - Editar profissao" << endl;
+    cout << "5 - Remover profissao" << endl;
     gotoxy(10,12);
-    cout << "6 - Salvar arquivo" << endl;
+    cout << "6 - Editar profissao" << endl;
     gotoxy(10,13);
-    cout << "7 - Ordenar dicionario";
+    cout << "7 - Salvar arquivo" << endl;
     gotoxy(10,14);
-	cout << "0 - Sair";
+    cout << "8 - Ordenar dicionario";
     gotoxy(10,15);
+	cout << "0 - Sair";
+    gotoxy(10,16);
     cout << "Opcao: ";
-    gotoxy(17,15);
+    gotoxy(17,16);
     cin >> opcao;
     switch(opcao){
         case 1: inserir_Letra();     break;
         case 2: listar();            break;
-        case 3: pesquisar_Palavra(); break;
-        case 4: remover();           break;
-        case 5: editar();            break;
-        case 6: salvarArquivo();     break;
-		case 7: ordenarLetras(); ordenarProfissoes(); cout << "Dicionario ordenado!"; system("pause"); break;
-        case 0: salvarArquivo(); return 0;           
+        case 3: pesquisarRelevancia(); break;
+        case 4: pesquisar_Palavra(); break;
+        case 5: remover();           break;
+        case 6: editar();            break;
+        case 7: salvarArquivo();     break;
+		case 8: ordenarLetras(); ordenarProfissoes(); cout << "Dicionario ordenado!"; system("pause"); break;
+        case 0: salvarArquivo(); return 0;
         default: cout << "Informe uma opcao valida!"; system("pause"); break;
     }
 
