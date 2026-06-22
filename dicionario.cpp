@@ -682,8 +682,8 @@ void pesquisarRelevancia(){
     int ocorrencias;
     limparTela();
 
-    cout << "Digite a profissao que deseja pesquisar: ";
-    cin.ignore();
+    cout << "Digite a palavra que deseja pesquisar: ";
+    //cin.ignore();
     cin.getline(palavra, 50);
     limparTela();
     maiusculo(palavra);
@@ -691,7 +691,7 @@ void pesquisarRelevancia(){
     ListaRelevancia *temp = NULL;
 
     while(pAuxD != NULL){
-        pAuxS = pAuxD->listaSimples;
+        pAuxS = pAuxD->listaSimples->pProx;
 
         while(pAuxS != NULL){
             ocorrencias = contarOcorrencias(pAuxS->descricao, palavra);
