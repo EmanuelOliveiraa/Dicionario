@@ -734,7 +734,7 @@ void pesquisarRelevancia(){
 	cout << "Palavra:" << endl;
     gotoxy(19,7);
     cin.getline(palavra, 50);
-    limparTela();
+    //limparTela();
     maiusculo(palavra);
 
     ListaRelevancia *temp = NULL;
@@ -748,6 +748,8 @@ void pesquisarRelevancia(){
             if(ocorrencias > 0){
                 inserirRelevancia(temp, pAuxS->palavra, pAuxS->descricao, ocorrencias);
             }else{
+                gotoxy(15,5);
+                cout << "PESQUISAR PALAVRA POR RELEVANCIA" << endl;
                 gotoxy(10,8);
                 cout << "Palavra nao encontrada" << endl;
                 cin.get();
