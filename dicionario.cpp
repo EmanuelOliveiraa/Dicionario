@@ -157,8 +157,13 @@ void carregarArquivo(){
 void salvarArquivo(){
 
     ofstream arquivo("profissoes.txt");
+    cin.ignore();
 
     if(!arquivo){
+        limparTela();
+        gotoxy(20,5);
+        cout << "SALVAR ARQUIVO";
+        gotoxy(10,7);
         cout << "Erro ao abrir o arquivo para salvar!\n";
         system("pause");
         return;
@@ -179,9 +184,13 @@ void salvarArquivo(){
     }
 
     arquivo.close();
-
+    limparTela();
+    gotoxy(20,5);
+    cout << "SALVAR ARQUIVO";
+    gotoxy(15,7);
     cout << "Arquivo salvo com sucesso!\n";
-    system("pause");
+    cin.get();
+    //system("pause");
 }
 
 void inserir_Palavra(ListaSimples *lista, char palavra[50], char descricao[200]){
@@ -271,11 +280,15 @@ void telaInserir(){
 
     limparTela();
     cin.ignore();
-
+    gotoxy(20,5);
+    cout << "INSERIR PROFISSAO" << endl;
+    gotoxy(10,7);
     cout << "Digite a profissao: ";
-    cin.getline(palavra, 50);
-
+    gotoxy(10,8);
     cout << "Digite a descricao: ";
+    gotoxy(30,7);
+    cin.getline(palavra, 50);
+    gotoxy(30,8);
     cin.getline(descricao, 200);
 
     if(existeProfissao(palavra)){
@@ -285,7 +298,7 @@ void telaInserir(){
     }
 
     inserir_Letra(palavra, descricao);
-
+    gotoxy(10,9);
     cout << "Profissao inserida!" << endl;
     cin.get();
 }
@@ -295,7 +308,7 @@ void listar(){
     pAuxD = listaInicio_dupla.pProx;
     int i = 0;
 
-    gotoxy(15,5);
+    gotoxy(20,5);
 	cout << "LISTA DE PROFISSOES" << endl;
 
     if(pAuxD == NULL){
@@ -335,24 +348,30 @@ void telaEditar(){
 
     limparTela();
     cin.ignore();
-
-    cout << "Digite a profissao que deseja editar: ";
+    gotoxy(25,5);
+	cout << "EDITAR PALAVRA" << endl;
+	gotoxy(15,7);
+	cout << "Palavra:" << endl;
+    gotoxy(24,7);
     cin.getline(palavraAntiga, 50);
 
     if(existeProfissao(palavraAntiga) == NULL){
+        gotoxy(15,9);
         cout << "Profissao nao encontrada!" << endl;
         cin.get();
         return;
     }
-
-    cout << "Nova profissao: ";
+    gotoxy(15,9);
+    cout << "Nova profissao:";
+    gotoxy(15,10);
+    cout << "Nova descricao:";
+    gotoxy(31,9);
     cin.getline(palavraNova, 50);
-
-    cout << "Nova descricao: ";
+    gotoxy(31,10);
     cin.getline(descricaoNova, 200);
 
     editar(palavraAntiga, palavraNova, descricaoNova);
-
+    gotoxy(15,12);
     cout << "Profissao editada com sucesso!" << endl;
     cin.get();
 }
@@ -380,13 +399,17 @@ void editar(char palavraAntiga[50], char palavra[50], char descricao[200]){
         inserir_Letra(palavra, descricao);
     }
 }
+
 void telaRemover(){
     char palavra[50];
 
     limparTela();
     cin.ignore();
-
-    cout << "Digite a profissao para excluir: ";
+    gotoxy(25,5);
+    cout << "REMOVER PROFISSÃO" << endl;
+    gotoxy(10,7);
+    cout << "Digite a profissao:";
+    gotoxy(30,7);
     cin.getline(palavra, 50);
 
     if(existeProfissao(palavra) == NULL){
@@ -396,7 +419,7 @@ void telaRemover(){
     }
 
     remover(palavra);
-
+    gotoxy(10,8);
     cout << "Profissao removida com sucesso!" << endl;
     cin.get();
 }
@@ -461,11 +484,14 @@ void pesquisar_Palavra(){
     char palavra[50];
 
     limparTela();
-
-    cout << "Digite a profissao que deseja pesquisar: ";
+    gotoxy(10,5);
+    cout << "PESQUISAR PROFISSÃO PELA PALAVRA" << endl;
+    gotoxy(10,7);
+    cout << "Digite a profissão:";
     cin.ignore();
+    gotoxy(30,7);
     cin.getline(palavra, 50);
-	limparTela();
+	//limparTela();
 
     maiusculo(palavra);
     char letra = toupper(palavra[0]);
@@ -475,7 +501,8 @@ void pesquisar_Palavra(){
 
     //se nao existir lista para essa letra, a palavra nao existe
     if(lista == NULL){
-        cout << "Profissao nao encontrada!\n";
+        gotoxy(10,8);
+        cout << "Profissao nao encontrada!";
         system("pause");
         return;
     }
@@ -488,11 +515,14 @@ void pesquisar_Palavra(){
 
 
         if(strcmp(aux->palavra, palavra) == 0){
-            cout << "\nProfissao encontrada!\n";
+            gotoxy(10,9);
+            cout << "Profissão encontrada!";
+            gotoxy(10,10);
             cout << "Nome: " << aux->palavra << endl;
+            gotoxy(10,11);
             cout << "Descricao: " << aux->descricao << endl;
-
-            system("pause");
+            cin.get();
+            //system("pause");
             return;
         }
 
@@ -500,7 +530,8 @@ void pesquisar_Palavra(){
     }
 
     //se percorreu tudo e nao encontrou
-    cout << "Profissao nao encontrada!\n";
+    gotoxy(10,9);
+    cout << "Profissao nao encontrada!";
     system("pause");
 }
 
@@ -661,16 +692,23 @@ void ordenarRelevanciaSelection(ListaRelevancia *temp){
 
 
 void listarRelevancia(ListaRelevancia *temp){
+    int i = 0;
     if(temp == NULL){
+        gotoxy(15,8);
         cout << "Nenhuma descricao contem a palavra pesquisada." << endl;
         return;
     }
 
     while(temp != NULL){
+        gotoxy(10,9 + i);
         cout << "Profissao: " << temp->profissao << endl;
+        gotoxy(10,10 + i);
         cout << "Descricao: " << temp->descricao << endl;
+        gotoxy(10,11 + i);
         cout << "Ocorrencias: " << temp->ocorrencias << endl;
-        cout << "----------------------------------------" << endl;
+        gotoxy(10,12 + i);
+        cout << "" << endl;
+        i++;
         temp = temp->pProx;
     }
     cin.get();
@@ -681,9 +719,20 @@ void pesquisarRelevancia(){
     char palavra[50];
     int ocorrencias;
     limparTela();
-
-    cout << "Digite a palavra que deseja pesquisar: ";
-    //cin.ignore();
+    cin.ignore();
+    if(pAuxD == NULL){
+        gotoxy(15,5);
+        cout << "PESQUISAR PALAVRA POR RELEVANCIA" << endl;
+        gotoxy(10,7);
+        cout << "LISTA VAZIA..." << endl;
+        cin.get();
+        return;
+    }
+    gotoxy(15,5);
+	cout << "PESQUISAR PALAVRA POR RELEVANCIA" << endl;
+	gotoxy(10,7);
+	cout << "Palavra:" << endl;
+    gotoxy(19,7);
     cin.getline(palavra, 50);
     limparTela();
     maiusculo(palavra);
@@ -698,6 +747,10 @@ void pesquisarRelevancia(){
 
             if(ocorrencias > 0){
                 inserirRelevancia(temp, pAuxS->palavra, pAuxS->descricao, ocorrencias);
+            }else{
+                gotoxy(10,8);
+                cout << "Palavra nao encontrada" << endl;
+                cin.get();
             }
 
             pAuxS = pAuxS->pProx;
@@ -707,9 +760,11 @@ void pesquisarRelevancia(){
     }
 
     ordenarRelevanciaSelection(temp);
-
+    gotoxy(15,5);
     cout << "RESULTADO DA PESQUISA POR RELEVANCIA" << endl;
+    gotoxy(10,7);
     cout << "Palavra pesquisada: " << palavra << endl;
+    gotoxy(10,8);
     cout << "========================================" << endl;
 
     listarRelevancia(temp);
@@ -752,20 +807,31 @@ do {
     gotoxy(17,16);
     cin >> opcao;
     switch(opcao){
-        case 1: telaInserir();     break;
-        case 2: listar();            break;
-        case 3: pesquisarRelevancia(); break;
-        case 4: pesquisar_Palavra(); break;
-        case 5: telaRemover();           break;
-        case 6: telaEditar();            break;
-        case 7: salvarArquivo();     break;
-		case 8: ordenarLetras(); ordenarProfissoes(); cout << "Dicionario ordenado!"; system("pause"); break;
-        case 0: salvarArquivo(); return 0;
-        default: cout << "Informe uma opcao valida!"; system("pause"); break;
+        case 0: salvarArquivo();        return 0;
+        case 1: telaInserir();          break;
+        case 2: listar();               break;
+        case 3: pesquisarRelevancia();  break;
+        case 4: pesquisar_Palavra();    break;
+        case 5: telaRemover();          break;
+        case 6: telaEditar();           break;
+        case 7: salvarArquivo();        break;
+		case 8: ordenarLetras();
+                ordenarProfissoes();
+                limparTela();
+                gotoxy(20,5);
+                cout << "ORDENAR DICIONARIO";
+                gotoxy(15,7);
+                cout << "Dicionario ordenado!";
+                cin.get();
+                //system("pause");
+            break;
+        default: cin.ignore();
+                 gotoxy(10,17);
+                 cout << "Informe uma opcao valida!";
+                 cin.get();/*system("pause")*/;
+            break;
     }
-
-
-} while(opcao != 0);
+}while(opcao != 0);
 
 }
 
